@@ -1,0 +1,13 @@
+.idea
+.gigaide
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.git
+venv/
+.gitignore
+*.iml
+out
+gen

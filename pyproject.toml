@@ -1,0 +1,26 @@
+[project]
+name = "fastapi-backend"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "FlintWithBlackCrown",email = "kbolokhov@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "uvicorn (>=0.35.0,<0.36.0)",
+    "pydantic[email] (>=2.11.7,<3.0.0)",
+    "fastapi (>=0.116.1,<0.117.0)",
+    "python-jose[cryptography] (>=3.5.0,<4.0.0)",
+    "aerich (>=0.9.1,<0.10.0)",
+    "passlib (>=1.7.4,<2.0.0)",
+    "bcrypt (>=4.3.0,<5.0.0)",
+    "prometheus-fastapi-instrumentator (>=7.1.0,<8.0.0)",
+    "sentry-sdk[fastapi] (>=2.33.2,<3.0.0)",
+    "tortoise-orm (>=0.25.1,<0.26.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
