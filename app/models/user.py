@@ -1,17 +1,33 @@
-from tortoise import fields
-from tortoise.models import Model
-
-from app.models.user_role import UserRole
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, Boolean
+from sqlalchemy.orm import relationship, DeclarativeBase
 
 
-class User(Model):
-    id = fields.IntField(pk=True)
-    username = fields.CharField(max_length=50, unique=True)
-    email = fields.CharField(max_length=255, unique=True)
-    hashed_password = fields.CharField(max_length=255)
-    role = fields.CharEnumField(UserRole, default=UserRole.student)
+class Base(DeclarativeBase):
+    pass
 
-    created_at = fields.DatetimeField(auto_now_add=True)
+user_roles = Table(
+    'user_roles',
+    Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('role_id', Integer, ForeignKey('roles.id'), primary_key=True)
+)
 
-    def __str__(self):
-        return self.username
+class Role(Base):
+    __tablename__ = 'roles'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    description = Column(String)
+
+    users = relationship('User', secondary=user_roles, back_populates='roles')
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)
+
+    roles = relationship('Role', secondary=user_roles, back_populates='users')

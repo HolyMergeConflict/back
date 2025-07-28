@@ -1,20 +1,28 @@
+from contextlib import asynccontextmanager
+
 import sentry_sdk
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from tortoise.contrib.fastapi import register_tortoise
 
 from app import auth
-from app.config import TORTOISE_ORM
-from app.router import tasks
+from app.db.init_db import init_db
+from app.router import tasks, model
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
 
 app = FastAPI(
     title="FastAPI",
     docs_url="/docs",
     version="0.1.0",
     description='This is a simple FastAPI app.',
+    lifespan=lifespan
 )
 
 Instrumentator().instrument(app).expose(app)
@@ -28,14 +36,12 @@ sentry_sdk.init(
 
 app.include_router(auth.router)
 app.include_router(tasks.router)
+app.include_router(model.router)
 
 app.add_middleware(SentryAsgiMiddleware)
 
-register_tortoise(
-    app,
-    config=TORTOISE_ORM,
-    generate_schemas=True,
-)
+
+
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):

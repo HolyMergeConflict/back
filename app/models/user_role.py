@@ -1,8 +1,8 @@
 from enum import Enum
 
 
-class UserRole(str, Enum):
-    student = 'student'
-    teacher = 'teacher'
-    moderator = 'moderator'
-    admin = 'admin'
+class UserRoleEnum(str, Enum):
+    STUDENT = 'student'
+    TEACHER = 'teacher'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'

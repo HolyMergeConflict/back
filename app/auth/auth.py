@@ -1,23 +1,28 @@
 from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+
+from app.database import get_db
 from app.schemas.user import UserCreate, UserPublic, UserLogin
 from passlib.hash import bcrypt
-from app.auth.jwt import create_access_token
+from app.auth.jwt import AuthService
 from app.services.user_service import get_user_by_username, create_user
+
+auth_service = AuthService()
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=UserPublic)
-async def register(data: UserCreate):
-    if await get_user_by_username(data.username):
+async def register(data: UserCreate, db: Session = Depends(get_db)):
+    if await get_user_by_username(db, data.username):
         raise HTTPException(status_code=400, detail="Username already exists")
     hashed = bcrypt.hash(data.password)
-    user = await create_user(data.username, data.email, hashed, data.role)
-    return UserPublic(id=user.id, username=user.username, email=user.email)
+    user = await create_user(db, data.username, data.email, hashed, data.role)
+    return UserPublic(id=user.id, username=user.username, email=user.email, role=user.roles)
 
 @router.post("/login")
-async def login(data: UserLogin):
-    user = await get_user_by_username(data.username)
+async def login(data: UserLogin, db: Session = Depends(get_db)):
+    user = await get_user_by_username(db, data.username)
     if not user or not bcrypt.verify(data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    token = create_access_token({"sub": user.id})
+    token = auth_service.create_access_token({"sub": user.id})
     return {"access_token": token, "token_type": "bearer"}

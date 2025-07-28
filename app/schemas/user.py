@@ -1,11 +1,11 @@
 from pydantic import BaseModel, EmailStr
-from app.models.user_role import UserRole
+from app.models.user_role import UserRoleEnum
 
 
 class UserBase(BaseModel):
     username: str
     email: EmailStr
-    role: UserRole
+    role: UserRoleEnum | list[UserRoleEnum]
 
 class UserCreate(UserBase):
     password: str
@@ -20,3 +20,5 @@ class UserPublic(UserBase):
     class Config:
         orm_mode = True
 
+class UserUpdate(UserBase):
+    password: str
