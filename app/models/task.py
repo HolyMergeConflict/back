@@ -10,6 +10,7 @@ class Task(BaseModel):
    id = Column(Integer, primary_key=True, index=True)
    title = Column(String, nullable=False)
    description = Column(Text, nullable=False)
+   difficulty = Column(Integer, nullable=False)
    subject = Column(String, nullable=False)
 
    creator_id = Column(Integer, ForeignKey('users.id'), nullable=False)

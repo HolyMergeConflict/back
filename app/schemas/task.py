@@ -4,6 +4,7 @@ class TaskBase(BaseModel):
     title: str
     description: str
     difficulty: int
+    subject: str
 
 class TaskCreate(TaskBase):
     pass
