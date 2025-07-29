@@ -1,14 +1,18 @@
 from pydantic import BaseModel
 
 class TaskBase(BaseModel):
-    text: str
-    subject: str
+    title: str
+    description: str
     difficulty: int
 
 class TaskCreate(TaskBase):
     pass
 
-class Task(TaskBase):
+class TaskUpdate(TaskBase):
+    title: str | None = None,
+    description: str | None = None,
+
+class TaskOut(TaskBase):
     id: int
 
     class Config:

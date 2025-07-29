@@ -1,12 +1,15 @@
-from fastapi import Depends, HTTPException, status, security
-from fastapi.security import OAuth2PasswordBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 
 from app.auth.jwt import AuthService
 from app.database import get_db
 from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+security = HTTPBearer()
 
 def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -31,12 +34,8 @@ def get_current_user(
 
     return user
 
-#TODO: add hashing
 def get_password_hash(password: str):
-    if password:
-        return ''
-    else:
-        return None
+    return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str):
-    return
+    return pwd_context.verify(plain_password, hashed_password)

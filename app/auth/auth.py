@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.models.user_role import UserRoleEnum
 from app.schemas.user import UserCreate, UserPublic, UserLogin
 from passlib.hash import bcrypt
 from app.auth.jwt import AuthService
@@ -17,7 +18,11 @@ async def register(data: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already exists")
     hashed = bcrypt.hash(data.password)
     user = await create_user(db, data.username, data.email, hashed, data.role)
-    return UserPublic(id=user.id, username=user.username, email=user.email, role=user.roles)
+    return UserPublic(id=user.id,
+                      username=user.username,
+                      email=user.email,
+                      role=[UserRoleEnum(role.name) for role in user.roles]
+                      )
 
 @router.post("/login")
 async def login(data: UserLogin, db: Session = Depends(get_db)):

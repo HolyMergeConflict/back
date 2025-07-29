@@ -1,8 +1,10 @@
 from sqlalchemy import Integer, Column, DateTime
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import func
 
-from app.models.user import Base
 
+class Base(DeclarativeBase):
+    pass
 
 class BaseModel(Base):
     __abstract__ = True

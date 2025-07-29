@@ -1,9 +1,7 @@
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, Boolean
-from sqlalchemy.orm import relationship, DeclarativeBase
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, Boolean, DateTime, func
+from sqlalchemy.orm import relationship
 
-
-class Base(DeclarativeBase):
-    pass
+from app.models.base import BaseModel, Base
 
 user_roles = Table(
     'user_roles',
@@ -21,7 +19,7 @@ class Role(Base):
 
     users = relationship('User', secondary=user_roles, back_populates='roles')
 
-class User(Base):
+class User(BaseModel):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True)
@@ -31,3 +29,6 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     roles = relationship('Role', secondary=user_roles, back_populates='users')
+    tasks = relationship('Task', back_populates='creator', cascade='all, delete')
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

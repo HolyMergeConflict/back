@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def create_tables() -> None:
     try:
-        from app.models import user
+        from app.models import user, task
 
         BaseModel.metadata.create_all(bind=engine)
         logger.info('Database tables created successfully')
