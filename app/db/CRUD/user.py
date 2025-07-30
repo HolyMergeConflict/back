@@ -3,6 +3,9 @@ from app.models.user import User
 
 
 class UserCRUD(CRUDBase[User]):
+    def __init__(self, db):
+        super().__init__(db, User)
+
     def get_user_by_email(self, email: str) -> User:
         return self.get_one(email=email)
 

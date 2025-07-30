@@ -2,6 +2,9 @@ from app.db.CRUD.CRUD_base import CRUDBase
 from app.models.task import Task
 
 class TaskCRUD(CRUDBase[Task]):
+    def __init__(self, db):
+        super().__init__(db, Task)
+
     def get_tasks_by_user(self, user_id: int) -> list[Task]:
         return self.get_all(creator_id=user_id)
 

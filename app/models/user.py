@@ -29,6 +29,8 @@ class User(BaseModel):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
 
+    task_history = relationship('TaskHistory', back_populates='user', cascade='all, delete')
+
     roles = relationship('Role', secondary=user_roles, back_populates='users')
     tasks = relationship('Task', back_populates='creator', cascade='all, delete')
     created_at = Column(DateTime, server_default=func.now())

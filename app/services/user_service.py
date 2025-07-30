@@ -7,7 +7,7 @@ from app.models.user import User
 
 class UserService:
     def __init__(self, db: Session):
-        self.user_crud = UserCRUD(db, User)
+        self.user_crud = UserCRUD(db)
 
     def create_user(self, user_data: dict, creator: User = None) -> User:
         role = user_data.get('role', UserRoleEnum.STUDENT)

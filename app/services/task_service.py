@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.CRUD.task import TaskCRUD
-from app.enums.task_status import TaskStatusEnum
+from app.enums.task_moderation_status import TaskStatusEnum
 from app.enums.user_role import UserRoleEnum
 from app.models.task import Task
 from app.models.user import User
@@ -10,7 +10,7 @@ from app.models.user import User
 
 class TaskService:
     def __init__(self, db: Session):
-        self.task_crud = TaskCRUD(db, Task)
+        self.task_crud = TaskCRUD(db)
 
     def create_task(self, task_data: dict, creator: User) -> Task:
         needs_moderation = self._needs_moderation(creator)

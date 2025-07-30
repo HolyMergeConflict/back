@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.enums.task_status import TaskStatusEnum
+from app.enums.task_moderation_status import TaskStatusEnum
 
 
 class TaskBase(BaseModel):

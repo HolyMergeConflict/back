@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 
-from app.enums.task_status import TaskStatusEnum
+from app.enums.task_moderation_status import TaskStatusEnum
 from app.models.base import BaseModel
 
 
@@ -14,6 +14,8 @@ class Task(BaseModel):
    difficulty = Column(Integer, nullable=False)
    subject = Column(String, nullable=False)
    status = Column(Enum(TaskStatusEnum), nullable=False)
+
+   task_history = relationship('TaskHistory', back_populates='task', cascade='all, delete')
 
    creator_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
