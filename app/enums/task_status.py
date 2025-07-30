@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class TaskStatus(str, Enum):
-    pending = 'pending',
-    approved = 'approved',
-    rejected = 'rejected',
+class TaskStatusEnum(str, Enum):
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected',

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.enums.task_status import TaskStatus
+from app.enums.task_status import TaskStatusEnum
 
 
 class TaskBase(BaseModel):
@@ -8,7 +8,7 @@ class TaskBase(BaseModel):
     description: str
     difficulty: int
     subject: str
-    status: TaskStatus
+    status: TaskStatusEnum
 
 class TaskCreate(TaskBase):
     pass
