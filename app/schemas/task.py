@@ -1,10 +1,14 @@
 from pydantic import BaseModel
 
+from app.enums.task_status import TaskStatus
+
+
 class TaskBase(BaseModel):
     title: str
     description: str
     difficulty: int
     subject: str
+    status: TaskStatus
 
 class TaskCreate(TaskBase):
     pass

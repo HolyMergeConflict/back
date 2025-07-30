@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 
+from app.enums.task_status import TaskStatus
 from app.models.base import BaseModel
 
 
@@ -12,6 +13,7 @@ class Task(BaseModel):
    description = Column(Text, nullable=False)
    difficulty = Column(Integer, nullable=False)
    subject = Column(String, nullable=False)
+   status = Column(Enum(TaskStatus), nullable=False)
 
    creator_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 

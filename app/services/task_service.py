@@ -1,27 +1,24 @@
-from typing import List, Optional
-from app.schemas.task import TaskCreate, Task
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
-tasks_db = []
+from app.db.CRUD.task import create_task, get_task, update_task, delete_task
+from app.models.task import Task
 
-task_id_counter = 1
 
-async def get_tasks() -> List[Task]:
-    return tasks_db
+def create_user_task(db: Session, task_data: dict, creator_id: int) -> Task:
+    task = Task(**task_data, creator_id=creator_id)
+    return create_task(db, task)
 
-async def get_task(task_id: int) -> Optional[Task]:
-    for task in tasks_db:
-        if task.id == task_id:
-            return task
-    return None
-
-async def create_task(task_create: TaskCreate) -> Task:
-    global task_id_counter
-    task = Task(
-        id=task_id_counter,
-        text=task_create.text,
-        subject=task_create.subject,
-        difficulty=task_create.difficulty
-    )
-    task_id_counter += 1
-    tasks_db.append(task)
+def get_task_for_user(db: Session, task_id: int) -> Task:
+    task = get_task(db, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
     return task
+
+def update_user_task(db: Session, task_id: int, data: dict) -> Task:
+    task = get_task_for_user(db, task_id)
+    return update_task(db, task, data)
+
+def delete_user_task(db: Session, task_id: int) -> None:
+    task = get_task_for_user(db, task_id)
+    delete_task(db, task)

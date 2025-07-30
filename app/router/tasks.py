@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas.task import TaskCreate, TaskOut
-from app.services.task_service import get_tasks, get_task, create_task
+#from app.services.task_service import get_tasks, get_task, create_task
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
-
+'''
 @router.get("/", response_model=list[TaskOut])
 async def list_tasks():
     return await get_tasks()
@@ -18,3 +18,4 @@ async def read_task(task_id: int):
 @router.post("/", response_model=TaskOut)
 async def create_new_task(task_create: TaskCreate):
     return await create_task(task_create)
+'''

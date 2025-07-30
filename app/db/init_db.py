@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import engine, SessionLocal
 from app.models.base import BaseModel
 from app.models.user import Role
-from app.models.user_role import UserRoleEnum
+from app.enums.user_role import UserRoleEnum
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

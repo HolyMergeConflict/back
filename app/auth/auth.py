@@ -2,16 +2,16 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.user_role import UserRoleEnum
+from app.enums.user_role import UserRoleEnum
 from app.schemas.user import UserCreate, UserPublic, UserLogin
 from passlib.hash import bcrypt
 from app.auth.jwt import AuthService
-from app.services.user_service import get_user_by_username, create_user
+#from app.services.user_service import get_user_by_username, create_user
 
 auth_service = AuthService()
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
+'''
 @router.post("/register", response_model=UserPublic)
 async def register(data: UserCreate, db: Session = Depends(get_db)):
     if await get_user_by_username(db, data.username):
@@ -31,3 +31,4 @@ async def login(data: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid credentials")
     token = auth_service.create_access_token({"sub": user.id})
     return {"access_token": token, "token_type": "bearer"}
+'''

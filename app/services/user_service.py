@@ -1,32 +1,30 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.models.user import User, Role
-from app.models.user_role import UserRoleEnum
+from app.models.user import User
+
+def register_user(db: Session, user_data: dict) -> User:
+    if get_user_by_email(db, user_data['email']):
+        raise HTTPException(status_code=400, detail='email already registered')
+    if get_user_by_username(db, user_data['username']):
+        raise HTTPException(status_code=400, detail='username is already taken')
+
+    user = User(**user_data)
+
+    return create_user(db, user)
 
 
-async def get_user_by_username(db: Session, username: str) -> User | None:
-    return db.query(User).filter(User.username == username).first()
-
-async def create_user(db: Session,
-                      username: str,
-                      email: str,
-                      hashed_password: str,
-                      roles: UserRoleEnum | list[UserRoleEnum]
-                      ) -> User:
-    if isinstance(roles, UserRoleEnum):
-        roles = [roles]
-
-    db_roles = db.query(Role).filter(Role.name.in_([r.value for r in roles])).all()
-
-    user = User(
-        username=username,
-        email=email,
-        hashed_password=hashed_password,
-        roles=db_roles
-    )
-
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
+def get_user_profile(db: Session, username: str) -> User:
+    user = get_user_by_username(db, username)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail='user not found'
+        )
     return user
+
+def update_user_profile(db: Session, user: User, data: dict) -> User:
+    return update_user(db, user, data)
+
+def delete_user(db: Session, user: User) -> None:
+    delete_user(db, user)

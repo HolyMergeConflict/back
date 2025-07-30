@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.task import Task
 from app.models.user import User
-from app.db.crud.task import (
+from app.db.CRUD.task import (
     create_task,
     get_task,
     get_task_by_user,
