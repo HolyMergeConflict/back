@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 
 from app.auth.jwt import AuthService
 from app.database import get_db
-from app.models.user import User
+from app.models.user_table import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')

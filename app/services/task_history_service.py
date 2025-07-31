@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.db.CRUD.task_history import TaskHistoryCRUD
 from app.enums.task_moderation_status import TaskStatusEnum
-from app.models.task import Task
-from app.models.task_history import TaskHistory
-from app.models.user import User
+from app.models.task_table import Task
+from app.models.task_history_table import TaskHistory
+from app.models.user_table import User
 
 
 class TaskHistoryService:

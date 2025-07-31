@@ -1,10 +1,11 @@
+import abc
 from typing import TypeVar, Type, Generic
 
 from sqlalchemy.orm import Session
 
 T = TypeVar("T")
 
-class CRUDBase(Generic[T]):
+class CRUDBase(Generic[T], abc.ABC):
     def __init__(self, db: Session, model: Type[T]):
         self.db = db
         self.model = model

@@ -3,7 +3,7 @@ from typing import List
 from fastapi import Depends, HTTPException, status
 
 from app.auth.security import get_current_user
-from app.models.user import User
+from app.models.user_table import User
 from app.enums.user_role import UserRoleEnum
 
 

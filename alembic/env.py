@@ -5,8 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.models.base import Base
-from app.models import user, task
+from app.models.base_db_models import Base
+from app.models import user_table, task_table
 
 target_metadata = Base.metadata
 

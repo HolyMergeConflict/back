@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 
 from app.enums.task_moderation_status import TaskStatusEnum
-from app.models.base import BaseModel
+from app.models.base_db_models import BaseModel
 
 
 class Task(BaseModel):
@@ -11,6 +11,7 @@ class Task(BaseModel):
    id = Column(Integer, primary_key=True, index=True)
    title = Column(String, nullable=False)
    description = Column(Text, nullable=False)
+   answer = Column(Text, nullable=False)
    difficulty = Column(Integer, nullable=False)
    subject = Column(String, nullable=False)
    status = Column(Enum(TaskStatusEnum), nullable=False)

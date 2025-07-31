@@ -1,5 +1,5 @@
 from app.db.CRUD.CRUD_base import CRUDBase
-from app.models.task_history import TaskHistory
+from app.models.task_history_table import TaskHistory
 
 
 class TaskHistoryCRUD(CRUDBase[TaskHistory]):

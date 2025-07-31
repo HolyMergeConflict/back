@@ -3,16 +3,16 @@ import logging
 from sqlalchemy.orm import Session
 
 from app.database import engine, SessionLocal
-from app.models.base import BaseModel
-from app.models.user import Role
+from app.logger import setup_logger
+from app.models.base_db_models import BaseModel
+from app.models.user_table import Role
 from app.enums.user_role import UserRoleEnum
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 def create_tables() -> None:
     try:
-        from app.models import user, task, task_history
+        from app.models import user_table, task_table, task_history_table
 
         BaseModel.metadata.create_all(bind=engine)
         logger.info('Database tables created successfully')

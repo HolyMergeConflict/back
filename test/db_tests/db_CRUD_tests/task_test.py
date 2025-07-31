@@ -4,8 +4,8 @@ from unittest.mock import Mock, MagicMock
 from sqlalchemy import BinaryExpression
 from sqlalchemy.orm import Session
 
-from app.models.task import Task
-from app.models.user import User
+from app.models.task_table import Task
+from app.models.user_table import User
 from app.db.CRUD.task import (
     create_task,
     get_task,

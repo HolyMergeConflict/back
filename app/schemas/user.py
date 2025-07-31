@@ -5,7 +5,7 @@ from app.enums.user_role import UserRoleEnum
 class UserBase(BaseModel):
     username: str
     email: EmailStr
-    role: UserRoleEnum | list[UserRoleEnum]
+    role: UserRoleEnum
 
     class Config:
         from_attributes = True
@@ -20,6 +20,8 @@ class UserLogin(BaseModel):
 class UserPublic(UserBase):
     id: int
 
-
-class UserUpdate(UserBase):
-    password: str
+class UserUpdate(BaseModel):
+    username: str | None = None
+    email: EmailStr | None = None
+    role: UserRoleEnum | None = None
+    password: str | None = None

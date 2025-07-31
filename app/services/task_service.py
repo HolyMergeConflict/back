@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app.db.CRUD.task import TaskCRUD
 from app.enums.task_moderation_status import TaskStatusEnum
 from app.enums.user_role import UserRoleEnum
-from app.models.task import Task
-from app.models.user import User
+from app.models.task_table import Task
+from app.models.user_table import User
 
 
 class TaskService:
@@ -94,6 +94,24 @@ class TaskService:
             )
 
         return self.task_crud.delete_task_by_id(task_id)
+
+    def get_task_by_id(self, task_id: int) -> Task:
+        task = self.task_crud.get_task_by_id(task_id)
+        if not task:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Task not found"
+            )
+        return task
+
+    def get_task_by_subject(self, subject: str) -> list[Task]:
+        if not subject:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Subject is required"
+            )
+        if subject:
+            return self.task_crud.get_task_by_subject(subject)
 
     def get_approved_tasks(self, **filters) -> list[Task]:
         return self.task_crud.get_all(status=TaskStatusEnum.APPROVED, **filters)

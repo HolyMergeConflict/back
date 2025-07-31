@@ -1,5 +1,5 @@
 from app.db.CRUD.CRUD_base import CRUDBase
-from app.models.task import Task
+from app.models.task_table import Task
 
 class TaskCRUD(CRUDBase[Task]):
     def __init__(self, db):

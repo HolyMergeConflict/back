@@ -4,7 +4,7 @@ from sqlalchemy import Integer, Column, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 
 from app.enums.task_solution_status import TaskSolutionStatusEnum
-from app.models.base import Base
+from app.models.base_db_models import Base
 
 
 class TaskHistory(Base):

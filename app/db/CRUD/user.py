@@ -1,5 +1,5 @@
 from app.db.CRUD.CRUD_base import CRUDBase
-from app.models.user import User
+from app.models.user_table import User
 
 
 class UserCRUD(CRUDBase[User]):
