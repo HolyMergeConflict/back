@@ -92,13 +92,13 @@ class TaskService:
 
     @staticmethod
     def _needs_moderation(user: User) -> bool:
-        user_roles = {role.value for role in user.roles}
+        user_role = user.role
 
         privileged_roles = {UserRoleEnum.ADMIN, UserRoleEnum.MODERATOR}
-        return not bool(user_roles & privileged_roles)
+        return not bool(user_role & privileged_roles)
 
     @staticmethod
     def _can_moderate(user: User) -> bool:
-        user_roles = {role.value for role in user.roles}
+        user_role = user.role
         moderator_roles = {UserRoleEnum.ADMIN, UserRoleEnum.MODERATOR}
-        return bool(user_roles & moderator_roles)
+        return bool(user_role & moderator_roles)

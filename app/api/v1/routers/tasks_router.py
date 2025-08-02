@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, status, Depends
 from fastapi.params import Query
 from sqlalchemy.orm import Session
 
