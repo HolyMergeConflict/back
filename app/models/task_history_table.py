@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Integer, Column, ForeignKey, DateTime, Enum
+from sqlalchemy import Integer, Column, ForeignKey, DateTime, Enum, String, Float
 from sqlalchemy.orm import relationship
 
 from app.enums.task_solution_status import TaskSolutionStatusEnum
@@ -17,6 +17,9 @@ class TaskHistory(Base):
 
     status = Column(Enum(TaskSolutionStatusEnum), nullable=False)
     timestamp = Column(DateTime, default=datetime.now, nullable=False)
+    answer = Column(String, nullable=False)
+    score = Column(Float, nullable=False)
+    feedback = Column(String, nullable=True)
 
     user = relationship('User', back_populates='task_history')
     task = relationship('Task', back_populates='task_history')
