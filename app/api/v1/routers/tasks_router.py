@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, status, Depends
-from fastapi.params import Query
 from sqlalchemy.orm import Session
 
 from app.auth.security import get_current_user
@@ -20,16 +19,18 @@ def create_task(
         current_user: User = Depends(get_current_user)
 ):
     task_service = TaskService(db)
-    return task_service.create_task(task_data.dict(), current_user)
+    return task_service.create_task(task_data.model_dump(), current_user)
 
 @router.get("/", response_model=List[TaskOut])
 def get_tasks(
-        status: Optional[TaskStatusEnum] = Query(None, description="Filter by task status"),
-        creator_id: Optional[int] = Query(None, description="Filter by creator ID"),
+        task_status: Optional[TaskStatusEnum] = None,
+        creator_id: Optional[int] = None,
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user)
+        current_user: User = Depends(get_current_user),
+        **filters: dict
 ):
-    pass
+    task_service = TaskService(db)
+    return task_service.get_tasks_by_filters(current_user, status=task_status, creator_id=creator_id, **filters)
 
 @router.get("/my_tasks", response_model=List[TaskBase])
 def get_my_tasks(
@@ -37,7 +38,7 @@ def get_my_tasks(
         current_user: User = Depends(get_current_user)
 ):
     task_service = TaskService(db)
-    return task_service.task_crud.get_all(creator_id=current_user.id)
+    return task_service.get_own_tasks(current_user)
 
 @router.get("/moderation", response_model=List[TaskBase])
 def get_tasks_for_moderation(
@@ -53,7 +54,8 @@ def get_task(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
-    pass
+    task_service = TaskService(db)
+    return task_service.get_task_by_id(current_user, task_id)
 
 @router.put("/{task_id}", response_model=TaskBase)
 def update_task(
@@ -62,16 +64,9 @@ def update_task(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
-   pass
+    task_service = TaskService(db)
+    return task_service.update_task(task_id, task_data.model_dump(), current_user)
 
-@router.patch("/{task_id}", response_model=TaskBase)
-def partial_update_task(
-        task_id: int,
-        task_data: TaskUpdate,
-        db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user)
-):
-    return update_task(task_id, task_data, db, current_user)
 
 @router.patch("/{task_id}/approve", response_model=TaskBase)
 def approve_task(
@@ -97,4 +92,5 @@ def delete_task(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
-    pass
+    task_service = TaskService(db)
+    return task_service.delete_task(task_id, current_user)
