@@ -8,6 +8,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from app import auth
+from app.api.exception_handlers import register_exception_handlers
 from app.api.v1.routers import users_router
 from app.db.init_db import init_db
 from app.router import tasks, model
@@ -34,6 +35,8 @@ sentry_sdk.init(
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     send_default_pii=True,
 )
+
+register_exception_handlers(app)
 
 app.include_router(users_router.router)
 

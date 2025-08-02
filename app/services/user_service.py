@@ -1,8 +1,9 @@
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.CRUD.user import UserCRUD
 from app.enums.user_role import UserRoleEnum
+from app.exceptions.user_exception import EmailAlreadyRegistered, UsernameAlreadyTaken, UserNotFound, \
+    CannotDemoteSelf, PermissionDeniedUser
 from app.logger import setup_logger
 from app.models.user_table import User
 
@@ -19,17 +20,11 @@ class UserService:
 
         if self.user_crud.get_user_by_email(user_data.get('email')):
             self.logger.exception(f'User with email ${user_data['email']} already exists',)
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='User with this email already exists'
-            )
+            raise EmailAlreadyRegistered()
 
         if self.user_crud.get_user_by_username(user_data.get('username')):
             self.logger.exception(f'User with username ${user_data['username']} already exists')
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='User with this username already exists'
-            )
+            raise UsernameAlreadyTaken()
 
         user = User(**user_data)
         created_user = self.user_crud.create(user)
@@ -41,18 +36,12 @@ class UserService:
         self.logger.info('Updating user role for user with id: ', user_id)
         if not self._is_admin(admin):
             self.logger.exception('Only admins can update user roles')
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail='Only admins can update user roles'
-            )
+            raise PermissionDeniedUser()
 
         user = self.user_crud.get_one(id=user_id)
         if not user:
             self.logger.exception('User not found')
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='User not found'
-            )
+            raise UserNotFound()
 
         self._validate_role_assignment(new_role, admin)
 
@@ -72,16 +61,10 @@ class UserService:
                     return self.user_crud.update(user, user_data)
                 else:
                     self.logger.exception('User not found')
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail='User not found'
-                    )
+                    raise UserNotFound()
             else:
                 self.logger.exception('Only admins can update user roles')
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail='Insufficient permissions to update user'
-                )
+                raise PermissionDeniedUser()
 
     def promote_to_moderator(self, user_id: int, requesting_user: User) -> User:
         self.logger.info('Promoting user to moderator', user_id)
@@ -112,24 +95,15 @@ class UserService:
                     return self.user_crud.get_one(id=user_id)
                 else:
                     self.logger.exception('User not found',user_id)
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail='User not found'
-                    )
+                    raise UserNotFound()
             else:
                 self.logger.exception('Insufficient permissions to view user', user_id)
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail='Insufficient permissions to view user'
-                )
+                raise PermissionDeniedUser()
 
     def get_users(self, requesting_user: User, **filters) -> list[User]:
         if not self._can_view_users(requesting_user):
             self.logger.exception('Insufficient permissions to view users',requesting_user.id)
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions to view users"
-            )
+            raise PermissionDeniedUser()
         self.logger.info('Getting users', requesting_user.id)
         return self.user_crud.get_all(**filters)
 
@@ -140,25 +114,16 @@ class UserService:
     def _change_user_role(self, user_id: int, new_role: UserRoleEnum, requesting_user: User) -> User:
         if not self._is_admin(requesting_user):
             self.logger.exception('Only administrators can change user roles', requesting_user.id)
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only administrators can change user roles"
-            )
+            raise PermissionDeniedUser()
 
         user = self.user_crud.get_one(id=user_id)
         if not user:
             self.logger.exception('User not found', user_id)
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
+            raise UserNotFound()
 
         if user.id == requesting_user.id and new_role != UserRoleEnum.ADMIN:
             self.logger.exception('Administrators cannot demote themselves', requesting_user.id)
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Administrators cannot demote themselves"
-            )
+            raise CannotDemoteSelf()
 
         updated_user = self.user_crud.update(user, {'role': new_role})
         self.logger.info(f'User role updated successfully for user with id: ${user_id}, by admin with id: {requesting_user.id}')
@@ -169,25 +134,16 @@ class UserService:
 
         if (role in privileged_roles) and not self._is_admin(creator):
             self.logger.exception('Only administrators can assign admin or moderator roles')
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only administrators can assign admin or moderator roles"
-            )
+            raise PermissionDeniedUser()
 
     def delete_user(self, user: User, admin: User) -> None:
         if not self._is_admin(admin):
             self.logger.exception('Only administrators can delete users', admin.id)
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only administrators can delete users"
-            )
+            raise PermissionDeniedUser()
 
         if not user:
             self.logger.exception('User not found', admin.id)
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
+            raise UserNotFound
         self.logger.info('Deleting user with id: ', user.id)
         return self.user_crud.delete(user)
 
@@ -197,10 +153,7 @@ class UserService:
             self.delete_user(user, admin)
         else:
             self.logger.exception('User not found', user_id)
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
+            raise UserNotFound
 
     @staticmethod
     def _is_admin(user: User) -> bool:
