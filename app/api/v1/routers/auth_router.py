@@ -1,0 +1,32 @@
+from fastapi import APIRouter, Depends, status
+from fastapi.security import HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.schemas.user import UserCreate, TokenResponse, UserPublic
+from app.services.auth_service import AuthService
+from app.auth.security import security
+
+
+router = APIRouter(prefix="/auth", tags=["Auth"])
+
+def get_auth_service(db: Session = Depends(get_db)) -> AuthService:
+    return AuthService(db)
+
+
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
+def register(user_data: UserCreate, service: AuthService = Depends(get_auth_service)):
+    user = service.register(user_data)
+    return UserPublic.model_validate(user)
+
+
+@router.post("/login", response_model=TokenResponse)
+def login(form_data: UserCreate, service: AuthService = Depends(get_auth_service)):
+    return service.authenticate(form_data.username, form_data.password)
+
+@router.post("/logout")
+def logout(
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    AuthService.logout(credentials.credentials)
+    return {'detail': 'Successfully logged out'}

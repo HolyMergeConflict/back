@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from app.database import engine, SessionLocal
 from app.logger import setup_logger
 from app.models.base_db_models import BaseModel
-from app.models.user_table import Role
 from app.enums.user_role import UserRoleEnum
 
 logger = setup_logger(__name__)
@@ -20,43 +19,7 @@ def create_tables() -> None:
         logger.error(f'Error creating tables: {e}')
         raise
 
-def init_roles(db: Session) -> list:
-    roles_data = [
-        {
-           'name': UserRoleEnum.ADMIN.value,
-            'description': 'Admin role'
-        },
-        {
-            'name': UserRoleEnum.MODERATOR.value,
-            'description': 'Moderator role'
-        },
-        {
-            'name': UserRoleEnum.STUDENT.value,
-            'description': 'Student role'
-        },
-        {
-            'name': UserRoleEnum.TEACHER.value,
-            'description': 'Teacher role'
-        }
-    ]
 
-    created_roles = []
-
-    for role_data in roles_data:
-        existing_role = db.query(Role).filter(Role.name == role_data['name']).first()
-        if not existing_role:
-            role = Role(**role_data)
-            db.add(role)
-            created_roles.append(role_data['name'])
-            logger.info(f'Created role: {role_data["name"]}')
-        else:
-            logger.info(f'Role {role_data["name"]} already exists. Skipping creation.')
-
-    if created_roles:
-        db.commit()
-        logger.info(f'Successfully created {len(created_roles)} roles')
-
-    return created_roles
 
 def init_db() -> None:
     logger.info("Starting database initialization...")
@@ -64,17 +27,7 @@ def init_db() -> None:
     create_tables()
 
     db = SessionLocal()
-    try:
-        init_roles(db)
 
-        logger.info("Database initialization completed successfully")
-
-    except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
-        db.rollback()
-        raise
-    finally:
-        db.close()
 
 def reset_database() -> None:
     logger.warning("Resetting database - all data will be lost!")

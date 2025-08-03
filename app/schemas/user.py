@@ -25,3 +25,7 @@ class UserUpdate(BaseModel):
     email: EmailStr | None = None
     role: UserRoleEnum | None = None
     password: str | None = None
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
