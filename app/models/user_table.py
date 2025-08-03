@@ -1,25 +1,9 @@
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, Boolean, DateTime, func, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, func, Enum
 from sqlalchemy.orm import relationship
 
 from app.enums.user_role import UserRoleEnum
-from app.models.base_db_models import BaseModel, Base
-'''
-user_role = Table(
-    'user_role',
-    Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
-    #Column('role_id', Integer, ForeignKey('role.id'), primary_key=True)
-)
+from app.models.base_db_models import BaseModel
 
-class Role(Base):
-    __tablename__ = 'role'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    description = Column(String)
-
-    users = relationship('User', secondary=user_role, back_populates='role')
-'''
 class User(BaseModel):
     __tablename__ = 'users'
 
