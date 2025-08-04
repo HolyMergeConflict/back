@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status
-from fastapi.security import HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.schemas.user import UserCreate, TokenResponse, UserPublic
 from app.services.auth_service import AuthService
-from app.auth.security import security
 
+security = HTTPBearer()
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

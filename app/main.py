@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 from app.api.exception_handlers import register_exception_handlers
 from app.api.v1.routers import users_router, tasks_router, task_history_router, auth_router
 from app.db.init_db import init_db
+from app.middleware.auth_middleware import AuthMiddleware
 
 
 @asynccontextmanager
@@ -41,6 +42,7 @@ app.include_router(tasks_router.router)
 app.include_router(task_history_router.router)
 app.include_router(auth_router.router)
 
+app.add_middleware(AuthMiddleware)
 app.add_middleware(SentryAsgiMiddleware)
 
 
