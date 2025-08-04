@@ -6,6 +6,8 @@ from app.exceptions.user_exception import EmailAlreadyRegistered, UsernameAlread
     CannotDemoteSelf, PermissionDeniedUser
 from app.logger import setup_logger
 from app.models.user_table import User
+from app.schemas.user import UserCreate, UserUpdate
+
 
 class UserService:
     def __init__(self, db: AsyncSession):
@@ -13,21 +15,21 @@ class UserService:
         self.logger = setup_logger(__name__)
 
 
-    async def create_user(self, user_data: dict, creator: User = None) -> User:
-        role = user_data.get('role', UserRoleEnum.STUDENT)
+    async def create_user(self, user_data: UserCreate, creator: User = None) -> User:
+        role = user_data.role or UserRoleEnum.STUDENT
         self.logger.info(f'Creating user with role: {role}')
 
         self._validate_role_assignment(role, creator)
 
-        if await  self.user_crud.get_user_by_email(user_data.get('email')):
+        if await  self.user_crud.get_user_by_email(user_data.email):
             self.logger.exception(f'User with email {user_data['email']} already exists',)
             raise EmailAlreadyRegistered()
 
-        if await self.user_crud.get_user_by_username(user_data.get('username')):
+        if await self.user_crud.get_user_by_username(user_data.email):
             self.logger.exception(f'User with username {user_data['username']} already exists')
             raise UsernameAlreadyTaken()
 
-        user = User(**user_data)
+        user = User(**user_data.model_dump(exclude_unset=True))
         created_user = await self.user_crud.create(user)
         self.logger.info(f'User created successfully with id: {created_user.id}')
 
@@ -52,16 +54,16 @@ class UserService:
         return updated_user
 
 
-    async def update_user(self, user_id: int, user_data: dict, requesting_user: User) -> User:
+    async def update_user(self, user_id: int, user_data: UserUpdate, requesting_user: User) -> User:
         if requesting_user.id == user_id:
             self.logger.info(f'Updating user with id: {user_id}')
-            return await self.user_crud.update(requesting_user, user_data)
+            return await self.user_crud.update(requesting_user, user_data.model_dump(exclude_unset=True))
 
         if requesting_user.id != user_id:
             if self._is_admin(requesting_user):
                 if user := await self.user_crud.get_one(id=user_id):
                     self.logger.info(f'Updating user with id: {user_id}')
-                    return await self.user_crud.update(user, user_data)
+                    return await self.user_crud.update(user, user_data.model_dump(exclude_unset=True))
                 else:
                     self.logger.exception('User not found')
                     raise UserNotFound()
