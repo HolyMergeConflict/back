@@ -9,24 +9,20 @@ from app.enums.user_role import UserRoleEnum
 
 logger = setup_logger(__name__)
 
-def create_tables() -> None:
+async def async_create_tables() -> None:
     try:
         from app.models import user_table, task_table, task_history_table
 
-        BaseModel.metadata.create_all(bind=engine)
+        async with engine.begin() as conn:
+            await conn.run_sync(BaseModel.metadata.create_all)
         logger.info('Database tables created successfully')
     except Exception as e:
         logger.error(f'Error creating tables: {e}')
         raise
 
-
-
-def init_db() -> None:
+async def init_db() -> None:
     logger.info("Starting database initialization...")
-
-    create_tables()
-
-    db = async_session()
+    await async_create_tables()
 
 
 def reset_database() -> None:

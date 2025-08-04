@@ -11,11 +11,11 @@ class UserBase(BaseModel):
         from_attributes = True
 
 class UserCreate(UserBase):
-    password: str
+    hashed_password: str
 
 class UserLogin(BaseModel):
     username: str
-    password: str
+    hashed_password: str
 
 class UserPublic(UserBase):
     id: int
@@ -24,7 +24,7 @@ class UserUpdate(BaseModel):
     username: str | None = None
     email: EmailStr | None = None
     role: UserRoleEnum | None = None
-    password: str | None = None
+    hashed_password: str | None = None
 
 class TokenResponse(BaseModel):
     access_token: str
