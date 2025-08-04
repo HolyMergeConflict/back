@@ -5,7 +5,7 @@ from typing import Optional
 from dotenv import load_dotenv
 from jose import jwt
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.CRUD.user import UserCRUD
 from app.exceptions.base_exception import ServiceException
@@ -25,7 +25,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class AuthService:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.user_crud = UserCRUD(db)
         self.user_service = UserService(db)
         self.logger = setup_logger(__name__)
@@ -54,12 +54,12 @@ class AuthService:
         except JWTError:
             return None
 
-    def register(self, user_data: UserCreate) -> User:
-        return self.user_service.create_user(user_data.model_dump())
+    async def register(self, user_data: UserCreate) -> User:
+        return await self.user_service.create_user(user_data)
 
-    def authenticate(self, username: str, password: str) -> TokenResponse:
+    async def authenticate(self, username: str, password: str) -> TokenResponse:
         self.logger.info('Starting authentication')
-        user = self.user_crud.get_user_by_username(username)
+        user = await self.user_crud.get_user_by_username(username)
         if not user or not self.verify_password(password, user.hashed_password):
             self.logger.exception(f'Authentication failed for user {username}')
             raise ServiceException("Invalid credentials", status_code=401)
