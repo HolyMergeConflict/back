@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from typing import Optional
 
 from dotenv import load_dotenv
-from jose import jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -46,13 +46,17 @@ class AuthService:
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     @staticmethod
-    def verify_token(token: str) -> Optional[str]:
-        from jose import JWTError
+    def verify_token(token: str) -> str:
+        if redis_client.exists(f'access_token:{token}'):
+            raise ServiceException('Token revoked', status_code=401)
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            return payload.get("sub")
-        except JWTError:
-            return None
+            sub = payload.get("sub")
+            if sub is None:
+                raise JWTError("Missing subject")
+            return sub
+        except JWTError as e:
+            raise ServiceException("Invalid token", status_code=401) from e
 
     async def register(self, user_data: UserCreate) -> User:
         return await self.user_service.create_user(user_data)
@@ -73,4 +77,4 @@ class AuthService:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         exp_timestamp = int(payload.get('exp'))
         ttl = exp_timestamp - int(datetime.now().timestamp())
-        redis_client.expire(f'access_token:{token}', ttl, 'true')
+        redis_client.expire(f'access_token:{token}', 'true', ex=ttl)
