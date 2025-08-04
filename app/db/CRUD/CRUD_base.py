@@ -1,7 +1,9 @@
 import abc
-from typing import TypeVar, Type, Generic
+from typing import TypeVar, Type, Generic, cast
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession as Session
+from sqlalchemy import delete as sqlalchemy_delete
 
 T = TypeVar("T")
 
@@ -11,42 +13,47 @@ class CRUDBase(Generic[T], abc.ABC):
         self.model = model
 
 
-    def get_query(self, **filters):
-        return self.db.query(self.model).filter_by(**filters)
+    async def get_query(self, **filters):
+        stmt = select(self.model).filter_by(**filters)
+        return await self.db.execute(stmt)
 
 
-    def get_one(self, **filters) -> T | None:
-        return self.get_query(**filters).first()
+    async def get_one(self, **filters) -> T | None:
+        result = await self.get_query(**filters)
+        return result.scalars().first()
 
 
-    def get_all(self, *conditions, **filters) -> list[T]:
-        query = self.get_query(**filters)
+    async def get_all(self, *conditions, **filters) -> list[T]:
+        stmt = select(self.model).filter_by(**filters)
         if conditions:
-            query = query.filter(*conditions)
-        return query.all()
+            stmt = stmt.filter(*conditions)
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
 
 
-    def create(self, obj: T) -> T:
+    async def create(self, obj: T) -> T:
         self.db.add(obj)
-        self.db.commit()
-        self.db.refresh(obj)
+        await self.db.commit()
+        await self.db.refresh(obj)
         return obj
 
 
-    def update(self, obj: T, data: dict) -> T:
+    async def update(self, obj: T, data: dict) -> T:
         for key, value in data.items():
             setattr(obj, key, value)
-        self.db.commit()
-        self.db.refresh(obj)
+        await self.db.commit()
+        await self.db.refresh(obj)
         return obj
 
 
-    def delete_by_filter(self, **filters) -> int:
-        result = self.db.query(self.model).filter_by(**filters).delete(synchronize_session=False)
-        self.db.commit()
-        return result
+
+    async def delete_by_filter(self, **filters) -> int:
+        stmt = sqlalchemy_delete(self.model).filter_by(**filters)
+        result = await self.db.execute(stmt)
+        await self.db.commit()
+        return cast(int, result.rowcount)
 
 
-    def delete(self, obj: T) -> None:
-        self.db.delete(obj)
-        self.db.commit()
+    async def delete(self, obj: T) -> None:
+        await self.db.delete(obj)
+        await self.db.commit()

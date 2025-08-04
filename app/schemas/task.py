@@ -16,6 +16,9 @@ class TaskCreate(TaskBase):
 class TaskUpdate(TaskBase):
     title: str | None = None,
     description: str | None = None,
+    difficulty: int | None = None,
+    subject: str | None = None,
+    status: TaskStatusEnum | None = None,
 
 class TaskOut(TaskBase):
     id: int

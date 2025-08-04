@@ -3,9 +3,9 @@ from datetime import timedelta, datetime
 from typing import Optional
 
 from dotenv import load_dotenv
-from jose import jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.CRUD.user import UserCRUD
 from app.exceptions.base_exception import ServiceException
@@ -25,7 +25,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class AuthService:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.user_crud = UserCRUD(db)
         self.user_service = UserService(db)
         self.logger = setup_logger(__name__)
@@ -46,20 +46,24 @@ class AuthService:
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     @staticmethod
-    def verify_token(token: str) -> Optional[str]:
-        from jose import JWTError
+    def verify_token(token: str) -> str:
+        if redis_client.exists(f'access_token:{token}'):
+            raise ServiceException('Token revoked', status_code=401)
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            return payload.get("sub")
-        except JWTError:
-            return None
+            sub = payload.get("sub")
+            if sub is None:
+                raise JWTError("Missing subject")
+            return sub
+        except JWTError as e:
+            raise ServiceException("Invalid token", status_code=401) from e
 
-    def register(self, user_data: UserCreate) -> User:
-        return self.user_service.create_user(user_data.model_dump())
+    async def register(self, user_data: UserCreate) -> User:
+        return await self.user_service.create_user(user_data)
 
-    def authenticate(self, username: str, password: str) -> TokenResponse:
+    async def authenticate(self, username: str, password: str) -> TokenResponse:
         self.logger.info('Starting authentication')
-        user = self.user_crud.get_user_by_username(username)
+        user = await self.user_crud.get_user_by_username(username)
         if not user or not self.verify_password(password, user.hashed_password):
             self.logger.exception(f'Authentication failed for user {username}')
             raise ServiceException("Invalid credentials", status_code=401)
@@ -73,4 +77,4 @@ class AuthService:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         exp_timestamp = int(payload.get('exp'))
         ttl = exp_timestamp - int(datetime.now().timestamp())
-        redis_client.expire(f'access_token:{token}', ttl, 'true')
+        redis_client.expire(f'access_token:{token}', 'true', ex=ttl)

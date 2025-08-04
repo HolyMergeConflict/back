@@ -2,7 +2,7 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from app.database import engine, SessionLocal
+from app.database import engine, async_session
 from app.logger import setup_logger
 from app.models.base_db_models import BaseModel
 from app.enums.user_role import UserRoleEnum
@@ -26,7 +26,7 @@ def init_db() -> None:
 
     create_tables()
 
-    db = SessionLocal()
+    db = async_session()
 
 
 def reset_database() -> None:
