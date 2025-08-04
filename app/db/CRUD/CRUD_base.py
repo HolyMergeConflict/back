@@ -28,7 +28,7 @@ class CRUDBase(Generic[T], abc.ABC):
         if conditions:
             stmt = stmt.filter(*conditions)
         result = await self.db.execute(stmt)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
 
     async def create(self, obj: T) -> T:
