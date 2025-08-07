@@ -8,7 +8,6 @@ class TaskBase(BaseModel):
     description: str
     difficulty: int
     subject: str
-    status: TaskStatusEnum
 
 class TaskCreate(TaskBase):
     pass
@@ -22,6 +21,7 @@ class TaskUpdate(TaskBase):
 
 class TaskOut(TaskBase):
     id: int
+    status: TaskStatusEnum
 
     class Config:
         orm_mode = True
