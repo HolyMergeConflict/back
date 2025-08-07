@@ -1,9 +1,13 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+from app.enums.task_moderation_status import TaskStatusEnum
 from app.enums.user_role import UserRoleEnum
+from app.models.task_table import Task
 from app.models.user_table import User
+from app.schemas.task import TaskUpdate, TaskCreate
 from app.schemas.user import UserCreate
+from app.services.task_service import TaskService
 from app.services.user_service import UserService
 
 
@@ -36,4 +40,30 @@ def db_mock():
 def user_service(db_mock):
     service = UserService(db=db_mock)
     service.user_crud = AsyncMock()
+    return service
+
+
+@pytest.fixture
+def task_create():
+    return TaskCreate(
+        title="test",
+        description="desc",
+        answer="42",
+        difficulty=1,
+        subject="math",
+    )
+
+@pytest.fixture
+def task_update():
+    return TaskUpdate(title="new title")
+
+@pytest.fixture
+def task():
+    return Task(id=1, creator_id=1, title="t", description="d", answer="42", difficulty=1,
+                subject="math", status=TaskStatusEnum.PENDING)
+
+@pytest.fixture
+def task_service(db_mock):
+    service = TaskService(db=db_mock)
+    service._task_crud = AsyncMock()
     return service
