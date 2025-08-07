@@ -25,6 +25,8 @@ class TaskHistoryUpdate(TaskHistoryBase):
     pass
 
 class TaskHistoryCreate(BaseModel):
-    user_id: int
     task_id: int
     status: TaskSolutionStatusEnum
+    answer: str
+    score: float
+    feedback: Optional[str] = None
