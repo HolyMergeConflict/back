@@ -7,6 +7,7 @@ from app.models.task_table import Task
 from app.models.user_table import User
 from app.schemas.task import TaskUpdate, TaskCreate
 from app.schemas.user import UserCreate
+from app.services.auth_service import AuthService
 from app.services.task_service import TaskService
 from app.services.user_service import UserService
 
@@ -67,3 +68,17 @@ def task_service(db_mock):
     service = TaskService(db=db_mock)
     service._task_crud = AsyncMock()
     return service
+
+
+@pytest.fixture
+def auth_service(db_mock):
+    service = AuthService(db=db_mock)
+    service.user_crud = AsyncMock()
+    return service
+
+@pytest.fixture(autouse=True)
+def mock_redis(monkeypatch):
+    mock = MagicMock()
+    mock.exists.return_value = False
+    mock.expire.return_value = None
+    monkeypatch.setattr("app.services.auth_service.redis_client", mock)
