@@ -27,7 +27,7 @@ def user_data() -> UserCreate:
     return UserCreate(
         username="newuser",
         email="new@example.com",
-        hashed_password="securepassword123",
+        password="securepassword123",
         role=UserRoleEnum.STUDENT
     )
 

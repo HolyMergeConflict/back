@@ -10,12 +10,16 @@ from app.models.task_history_table import TaskHistory
 from app.exceptions.base_exception import ServiceException
 from app.schemas.user import TokenResponse
 from app.services.auth_service import AuthService
+from app.utils.password_utils import PasswordUtils
 
 
 @pytest.mark.asyncio
 async def test_register_user(auth_service, user_data):
     # mock UserService.create_user
-    with patch.object(auth_service.user_service, 'create_user', return_value=User(id=1, **user_data.model_dump())):
+    data = user_data.model_dump()
+    data['hashed_password'] = PasswordUtils.get_password_hash(data['password'])
+    data.pop('password')
+    with patch.object(auth_service.user_service, 'create_user', return_value=User(id=1, **data)):
         user = await auth_service.register(user_data)
         assert user.id == 1
         assert user.email == user_data.email
@@ -24,7 +28,7 @@ async def test_register_user(auth_service, user_data):
 @pytest.mark.asyncio
 async def test_authenticate_success(auth_service):
     raw_password = "secret"
-    hashed = auth_service.get_password_hash(raw_password)
+    hashed = PasswordUtils.get_password_hash(raw_password)
 
     user = User(id=1, username="tester", hashed_password=hashed)
     auth_service.user_crud.get_user_by_username.return_value = user
@@ -38,7 +42,7 @@ async def test_authenticate_success(auth_service):
 
 @pytest.mark.asyncio
 async def test_authenticate_invalid_password(auth_service):
-    user = User(id=1, username="tester", hashed_password=auth_service.get_password_hash("correct"))
+    user = User(id=1, username="tester", hashed_password=PasswordUtils.get_password_hash("correct"))
     auth_service.user_crud.get_user_by_username.return_value = user
 
     with pytest.raises(ServiceException, match="Invalid credentials"):
@@ -94,7 +98,7 @@ def test_logout_sets_redis_flag(mock_redis, auth_service):
 
     auth_service.logout(token)
 
-    ttl = exp - int(payload["exp"])  # просто для читаемости
+    ttl = exp - int(payload["exp"])
     mock_redis.expire.assert_called_once()
 
 

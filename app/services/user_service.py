@@ -7,6 +7,7 @@ from app.exceptions.user_exception import EmailAlreadyRegistered, UsernameAlread
 from app.logger import setup_logger
 from app.models.user_table import User
 from app.schemas.user import UserCreate, UserUpdate
+from app.utils.password_utils import PasswordUtils
 
 
 class UserService:
@@ -29,7 +30,14 @@ class UserService:
             self.logger.exception(f'User with username {user_data.username} already exists')
             raise UsernameAlreadyTaken()
 
-        user = User(**user_data.model_dump(exclude_unset=True))
+        hashed_password = PasswordUtils.get_password_hash(user_data.password)
+
+        user_dict = user_data.model_dump()
+        user_dict['hashed_password'] = hashed_password
+        user_dict['role'] = role
+        user_dict.pop('password')
+
+        user = User(**user_dict)
         created_user = await self.user_crud.create(user)
         self.logger.info(f'User created successfully with id: {created_user.id}')
 

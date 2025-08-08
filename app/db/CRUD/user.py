@@ -1,8 +1,8 @@
 from sqlalchemy import select
 
-from app.utils.password_utils import verify_password
 from app.db.CRUD.CRUD_base import CRUDBase
 from app.models.user_table import User
+from app.utils.password_utils import PasswordUtils
 
 
 class UserCRUD(CRUDBase[User]):
@@ -19,6 +19,6 @@ class UserCRUD(CRUDBase[User]):
         stmt = select(self.model).filter(self.model.username == username)
         result = await self.db.execute(stmt)
         user = result.scalars().first()
-        if not user or not verify_password(password, user.hashed_password):
+        if not user or not PasswordUtils.verify_password(password, user.hashed_password):
             return None
         return user

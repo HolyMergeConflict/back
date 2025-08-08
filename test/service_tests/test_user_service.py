@@ -13,13 +13,17 @@ from app.exceptions.user_exception import (
     PermissionDeniedUser,
     CannotDemoteSelf,
 )
+from app.utils.password_utils import PasswordUtils
 
 
 @pytest.mark.asyncio
 async def test_create_user_success(user_service, user_data):
     user_service.user_crud.get_user_by_email.return_value = None
     user_service.user_crud.get_user_by_username.return_value = None
-    user_service.user_crud.create.return_value = User(id=123, **user_data.model_dump())
+    data = user_data.model_dump()
+    data['hashed_password'] = PasswordUtils.get_password_hash(user_data.password)
+    data.pop('password')
+    user_service.user_crud.create.return_value = User(id=123, **data)
 
     result = await user_service.create_user(user_data)
 
