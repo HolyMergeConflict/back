@@ -7,6 +7,7 @@ from app.auth.security import get_current_user
 from app.database import get_db
 from app.enums.user_role import UserRoleEnum
 from app.models.user_table import User
+from app.schemas.update_requests import UpdateRoleRequest
 from app.schemas.user import  UserPublic, UserUpdate
 from app.services.user_service import UserService
 
@@ -50,14 +51,14 @@ async def update_user(
     return await user_service.update_user(user_id, user_data, current_user)
 
 @router.patch('/{user_id}/role', response_model=UserPublic)
-async def update_user_roles(
+async def update_user_role(
         user_id: int,
-        new_role: UserRoleEnum,
+        update: UpdateRoleRequest,
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
     user_service = UserService(db)
-    return await user_service.update_user_role(user_id, new_role, current_user)
+    return await user_service.update_user_role(user_id, update.role, current_user)
 
 @router.patch("/{user_id}/promote/moderator", response_model=UserPublic)
 async def promote_to_moderator(
