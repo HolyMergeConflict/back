@@ -6,6 +6,7 @@ from pathlib import Path
 #with open(MODEL_PATH, "rb") as f:
 #    model = pickle.load(f)
 
+#TODO: Реализовать работу с моделью
 def predict(text: str) -> tuple[str, float]:
     #prediction = model.predict([text])[0]
     #proba = max(model.predict_proba([text])[0])
