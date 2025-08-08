@@ -2,12 +2,9 @@ import os
 
 from dotenv import load_dotenv
 from jose import jwt, JWTError
-from sqlalchemy import select
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi import Request, HTTPException, status
 
-from app.database import get_db
-from app.models.user_table import User
 from app.utils.redis_client import redis_client
 
 load_dotenv()
@@ -32,23 +29,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             try:
                 payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 username = payload.get('sub')
-
                 if not username:
-                    raise HTTPException(
-                        status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail='Invalid token',
-                    )
-
-                async with get_db() as db:
-                    result = await db.execute(select(User).where(User.username == username))
-                    user = result.scalar_one_or_none()
-                    if user is None:
-                        raise HTTPException(
-                            status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='User not found',
-                        )
-                    request.state.user = user
+                    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+                request.state.username = username
             except JWTError:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token verification failed')
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
 
         return await call_next(request)

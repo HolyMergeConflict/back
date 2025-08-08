@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas.user import UserCreate, TokenResponse, UserPublic
+from app.schemas.user import UserCreate, TokenResponse, UserPublic, UserLogin
 from app.services.auth_service import AuthService
 
 security = HTTPBearer()
@@ -21,7 +21,7 @@ async def register(user_data: UserCreate, service: AuthService = Depends(get_aut
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(form_data: UserCreate, service: AuthService = Depends(get_auth_service)):
+async def login(form_data: UserLogin, service: AuthService = Depends(get_auth_service)):
     return await service.authenticate(form_data.username, form_data.password)
 
 @router.post("/logout")

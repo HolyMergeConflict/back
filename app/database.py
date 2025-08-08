@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from dotenv import load_dotenv
 
@@ -29,3 +30,13 @@ def get_db():
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         yield session
+
+
+@asynccontextmanager
+async def get_db_context():
+    db_gen = get_db()
+    db = await anext(db_gen)
+    try:
+        yield db
+    finally:
+        await db_gen.aclose()
