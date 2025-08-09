@@ -12,7 +12,7 @@ from app.services.task_service import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
-@router.post("/", response_model=TaskBase, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
 async def create_task(
         task_data: TaskCreate,
         db: Session = Depends(get_db),
@@ -32,7 +32,7 @@ async def get_tasks(
     task_service = TaskService(db)
     return await task_service.get_tasks_by_filters(current_user, status=task_status, creator_id=creator_id, **filters)
 
-@router.get("/my_tasks", response_model=List[TaskBase])
+@router.get("/my_tasks", response_model=List[TaskOut])
 async def get_my_tasks(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
@@ -40,7 +40,7 @@ async def get_my_tasks(
     task_service = TaskService(db)
     return await task_service.get_own_tasks(current_user)
 
-@router.get("/moderation", response_model=List[TaskBase])
+@router.get("/moderation", response_model=List[TaskOut])
 async def get_tasks_for_moderation(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user)
@@ -48,7 +48,7 @@ async def get_tasks_for_moderation(
     task_service = TaskService(db)
     return await task_service.get_tasks_for_moderation(current_user)
 
-@router.get("/{task_id}", response_model=TaskBase)
+@router.get("/{task_id}", response_model=TaskOut)
 async def get_task(
         task_id: int,
         db: Session = Depends(get_db),
@@ -57,7 +57,7 @@ async def get_task(
     task_service = TaskService(db)
     return await task_service.get_task_by_id(current_user, task_id)
 
-@router.put("/{task_id}", response_model=TaskBase)
+@router.put("/{task_id}", response_model=TaskOut)
 async def update_task(
         task_id: int,
         task_data: TaskUpdate,
@@ -68,7 +68,7 @@ async def update_task(
     return await task_service.update_task(task_id, task_data, current_user)
 
 
-@router.patch("/{task_id}/approve", response_model=TaskBase)
+@router.patch("/{task_id}/approve", response_model=TaskOut)
 async def approve_task(
         task_id: int,
         db: Session = Depends(get_db),
@@ -77,7 +77,7 @@ async def approve_task(
     task_service = TaskService(db)
     return await task_service.approve_task(task_id, current_user)
 
-@router.patch("/{task_id}/reject", response_model=TaskBase)
+@router.patch("/{task_id}/reject", response_model=TaskOut)
 async def reject_task(
         task_id: int,
         db: Session = Depends(get_db),
