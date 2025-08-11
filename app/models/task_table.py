@@ -8,16 +8,18 @@ from app.models.base_db_models import BaseModel
 class Task(BaseModel):
    __tablename__ = 'tasks'
 
+
    id = Column(Integer, primary_key=True, index=True)
-   title = Column(String, nullable=False)
-   description = Column(Text, nullable=False)
+
+   # Данные задачи
+   subject = Column(String, nullable=False)
+   problem = Column(Text, nullable=False)
+   solution = Column(Text, nullable=False)
    answer = Column(Text, nullable=False)
    difficulty = Column(Integer, nullable=False)
-   subject = Column(String, nullable=False)
+
+   # Данные для сервиса
    status = Column(Enum(TaskStatusEnum), nullable=False)
-
    task_history = relationship('TaskHistory', back_populates='task', cascade='all, delete')
-
    creator_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-
    creator = relationship('User', back_populates='tasks')

@@ -4,22 +4,24 @@ from app.enums.task_moderation_status import TaskStatusEnum
 
 
 class TaskBase(BaseModel):
-    title: str
-    description: str
+    subject: str
+    problem: str
+    solution: str
     answer: str
     difficulty: int
-    subject: str
+    creator_id: int
+
 
 class TaskCreate(TaskBase):
     pass
 
 class TaskUpdate(TaskBase):
-    title: str | None = None,
-    description: str | None = None,
-    answer: str | None = None,
-    difficulty: int | None = None,
     subject: str | None = None,
-    status: TaskStatusEnum | None = None,
+    problem: str | None = None,
+    solution: str | None = None,
+    answer: str | None = None,
+    difficulty: int | None = None
+
 
 class TaskOut(TaskBase):
     id: int
