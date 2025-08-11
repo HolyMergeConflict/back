@@ -24,7 +24,7 @@
 ### Мониторинг и метрики:
 - [x] Sentry - отслеживание ошибок ✅ 2025-07-28
 - [x] Prometheus - метрики ✅ 2025-07-28
-- [x] Логирование (stdout + ротация логов)
+- [x] Логирование (stdout + ротация логов) ✅ 2025-08-11 
 - [ ] Healthcheck (/health, /readiness, /liveness)
 
 ### Документация:
@@ -61,10 +61,13 @@
 - Установлен `poetry` или `pip`
 - Создан `.env` файл
 
+### Примечание:
+В docker-compose `.env` уже прописан, так что если запускаете через docker, то создавать его не нужно
+
 ### 📄 Пример `.env`
 
 ```env
-DATABASE_URL=sqlite+aiosqlite:///./test.db
+SQL_URL=sqlite+aiosqlite:///./app.db
 SECRET_KEY=supersecret
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ALGORITHM=HS256
@@ -100,15 +103,35 @@ http://localhost:8000/docs
 
 ## 🐳 Запуск через Docker
 
-### 1. Сборка контейнера
+### 1. Сборка и запуск контейнера
 ```bash
-docker build -t fastapi-app .
+docker compose up -d --build
 ```
-### Запуск контейнера
+### 2. Проверить статус контейнеров
 ```bash
-docker compose up --build
+docker compose ps
 ```
+### 3. Логи (по необходимости)
+```bash
+# все сервисы
+docker compose logs -f
+# отдельно по сервисам
+docker compose logs -f app
+docker compose logs -f node-exporter
+docker compose logs -f cadvisor
+docker compose logs -f prometheus
+docker compose logs -f grafana
+```
+### 4. Остановка и удаление
+```bash
+docker compose down
+```
+## 🔗 Полезные адреса (по умолчанию)
 
+- API (Swagger): `http://localhost:8000/docs`
+- Экспорт метрик приложения: `http://localhost:8000/metrics`
+- Node Exporter: `http://localhost:9100/metrics`
+- cAdvisor UI: `http://localhost:8080/`
 ---
 # Реализованные маршруты (Routers)
 
