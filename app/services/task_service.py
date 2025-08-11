@@ -6,9 +6,11 @@ from app.enums.user_role import UserRoleEnum
 from app.exceptions.base_exception import MissingRequiredParameters
 from app.exceptions.task_exception import PermissionDeniedTask, TaskNotPendingModeration, TaskNotFound
 from app.logger import setup_logger
+from app.metrics import TASKS_CREATED
 from app.models.task_table import Task
 from app.models.user_table import User
 from app.schemas.task import TaskCreate, TaskUpdate
+from app.utils.metrics_utils import count
 
 
 class TaskService:
@@ -16,7 +18,11 @@ class TaskService:
         self._task_crud = TaskCRUD(db)
         self.logger = setup_logger(__name__)
 
+    def _task_labels(_self, task_data, *_, **__):
+        return {'subject': task_data.subject, "difficulty": task_data.difficulty,}
 
+
+    @count(TASKS_CREATED, labels=_task_labels)
     async def create_task(self, task_data: TaskCreate, creator: User) -> Task:
         self.logger.info(f'Creating task by user {creator.id}')
         needs_moderation = self._needs_moderation(creator)
@@ -102,13 +108,11 @@ class TaskService:
         return await self._task_crud.delete_task_by_id(task_id)
 
 
-    async def get_tasks_by_filters(self, requesting_by: User, **filters) -> list[Task]:
-        self.logger.info(f'Getting tasks by filters, filters: {filters}, for user: {requesting_by.id}')
+    async def get_tasks_by_filters(self, requesting_by: User, **filters):
+        filters = {k: v for k, v in filters.items() if v is not None}
         if self._can_moderate(requesting_by):
-            self.logger.info('User is a moderator, getting all tasks')
             return await self._task_crud.get_all(**filters)
-
-        self.logger.info('User is not a moderator, getting approved tasks')
+        filters.pop('status', None)
         return await self._task_crud.get_all(**filters, status=TaskStatusEnum.APPROVED)
 
 

@@ -2,6 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from dotenv import load_dotenv
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
 # from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
@@ -11,7 +12,8 @@ load_dotenv()
 
 URL = os.getenv('SQL_URL')
 
-engine = create_async_engine(URL, echo=True)
+engine = create_async_engine(URL, echo=False, future=True)
+SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

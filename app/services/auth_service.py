@@ -10,9 +10,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.CRUD.user import UserCRUD
 from app.exceptions.base_exception import ServiceException
 from app.logger import setup_logger
+from app.metrics import AUTH_LOGINS
 from app.models.user_table import User
 from app.schemas.user import UserCreate, TokenResponse
 from app.services.user_service import UserService
+from app.utils.metrics_utils import count_success_failure
 from app.utils.password_utils import PasswordUtils
 from app.utils.redis_client import redis_client
 
@@ -57,7 +59,7 @@ class AuthService:
     async def register(self, user_data: UserCreate) -> User:
         return await self.user_service.create_user(user_data)
 
-
+    @count_success_failure(AUTH_LOGINS)
     async def authenticate(self, username: str, password: str) -> TokenResponse:
         self.logger.info('Starting authentication')
         user = await self.user_crud.get_user_by_username(username)
@@ -73,6 +75,5 @@ class AuthService:
     @staticmethod
     def logout(token: str) -> None:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        exp_timestamp = int(payload.get('exp'))
-        ttl = exp_timestamp - int(datetime.now().timestamp())
-        redis_client.expire(f'access_token:{token}', 'true', ex=ttl)
+        ttl = int(payload['exp'] - datetime.now().timestamp())
+        redis_client.setex(f'access_token:{token}', ttl, 'revoked')

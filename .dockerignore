@@ -11,3 +11,5 @@ venv/
 *.iml
 out
 gen
+dist/
+build/

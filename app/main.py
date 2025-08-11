@@ -12,6 +12,9 @@ from app.api.v1.routers import users_router, tasks_router, task_history_router, 
 from app.db.init_db import init_db
 from app.middleware.auth_middleware import AuthMiddleware
 
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,7 +29,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-Instrumentator().instrument(app).expose(app)
+Instrumentator(
+    should_group_status_codes=True,
+    should_ignore_untemplated=True,
+    excluded_handlers={"/metrics"},
+).instrument(app).expose(app)
+FastAPIInstrumentor.instrument_app(app)
+RequestsInstrumentor().instrument()
 
 sentry_sdk.init(
     dsn="https://40a378732763debb7cc8f058778b6d05@o4509729759232000.ingest.de.sentry.io/4509729761329232",
