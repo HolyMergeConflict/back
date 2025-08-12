@@ -61,17 +61,18 @@
 - Установлен `poetry` или `pip`
 - Создан `.env` файл
 
-### Примечание:
-В docker-compose `.env` уже прописан, так что если запускаете через docker, то создавать его не нужно
-
 ### 📄 Пример `.env`
 
 ```env
+SECRET_KEY=supersecretkey
+ACCESS_TOKEN_EXPIRE_MINUTES=10
 SQL_URL=sqlite+aiosqlite:///./app.db
-SECRET_KEY=supersecret
-ACCESS_TOKEN_EXPIRE_MINUTES=30
 ALGORITHM=HS256
 REDIS_URL=redis://localhost:6379
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_PASSWORD=your-redis-password
 ```
 
 ### Установка зависимостей
