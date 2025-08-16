@@ -7,6 +7,8 @@ from app.enums.user_role import UserRoleEnum
 from app.models.user_table import User
 from app.utils.password_utils import PasswordUtils
 
+#DEAD CODE
+
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME')
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
