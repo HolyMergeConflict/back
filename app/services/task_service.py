@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.CRUD.task import TaskCRUD
 from app.enums.task_moderation_status import TaskStatusEnum
 from app.enums.user_role import UserRoleEnum
-from app.exceptions.base_exception import MissingRequiredParameters
 from app.exceptions.task_exception import PermissionDeniedTask, TaskNotPendingModeration, TaskNotFound
 from app.logger import setup_logger
 from app.metrics import TASKS_CREATED

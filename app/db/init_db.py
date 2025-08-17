@@ -1,7 +1,4 @@
-import logging
 import os
-
-from sqlalchemy.orm import Session
 
 from app.database import engine, async_session
 from app.db.CRUD.user import UserCRUD
