@@ -9,17 +9,17 @@ from app.models.task_table import Task
 
 @pytest.mark.asyncio
 async def test_create_task_as_student(task_service, user, task_create):
-    task_service._task_crud.create.return_value = Task(id=1, **task_create.model_dump(), creator_id=user.id, status=TaskStatusEnum.PENDING)
+    task_service._task_crud.create.return_value = Task(id=1, **task_create.model_dump(), creator_id=1, status=TaskStatusEnum.PENDING)
 
     result = await task_service.create_task(task_create, creator=user)
 
     assert result.status == TaskStatusEnum.PENDING
-    assert result.creator_id == user.id
+    assert result.creator_id == 1
 
 
 @pytest.mark.asyncio
 async def test_create_task_as_admin(task_service, admin, task_create):
-    task_service._task_crud.create.return_value = Task(id=2, **task_create.model_dump(), creator_id=admin.id, status=TaskStatusEnum.APPROVED)
+    task_service._task_crud.create.return_value = Task(id=2, **task_create.model_dump(), creator_id=999, status=TaskStatusEnum.APPROVED)
 
     result = await task_service.create_task(task_create, creator=admin)
 

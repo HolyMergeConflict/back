@@ -47,8 +47,8 @@ def user_service(db_mock):
 @pytest.fixture
 def task_create():
     return TaskCreate(
-        title="test",
-        description="desc",
+        problem='problem',
+        solution='solution',
         answer="42",
         difficulty=1,
         subject="math",
@@ -56,11 +56,11 @@ def task_create():
 
 @pytest.fixture
 def task_update():
-    return TaskUpdate(title="new title")
+    return TaskUpdate(problem='new problem')
 
 @pytest.fixture
 def task():
-    return Task(id=1, creator_id=1, title="t", description="d", answer="42", difficulty=1,
+    return Task(id=1, creator_id=1, problem="p", solution='s', answer="42", difficulty=1,
                 subject="math", status=TaskStatusEnum.PENDING)
 
 @pytest.fixture

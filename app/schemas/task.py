@@ -12,8 +12,12 @@ class TaskBase(BaseModel):
     creator_id: int
 
 
-class TaskCreate(TaskBase):
-    pass
+class TaskCreate(BaseModel):
+    subject: str
+    problem: str
+    solution: str
+    answer: str
+    difficulty: int
 
 class TaskUpdate(TaskBase):
     subject: str | None = None,
@@ -21,6 +25,7 @@ class TaskUpdate(TaskBase):
     solution: str | None = None,
     answer: str | None = None,
     difficulty: int | None = None
+    creator_id: int | None = None
 
 
 class TaskOut(TaskBase):
