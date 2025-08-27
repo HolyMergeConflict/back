@@ -51,6 +51,7 @@ app.include_router(tasks_router.router)
 app.include_router(task_history_router.router)
 app.include_router(auth_router.router)
 app.include_router(health_router.router)
+app.include_router(recomendation_router.router)
 
 app.add_middleware(AuthMiddleware)
 app.add_middleware(SentryAsgiMiddleware)

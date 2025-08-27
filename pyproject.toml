@@ -46,6 +46,7 @@ opentelemetry-instrumentation-psycopg2 = ">=0.57b0,<0.58"
 
 ctranslate2 = ">=4.6.0,<5.0.0"
 langdetect = ">=1.0.9,<2.0.0"
+scikit-learn = "^1.7.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
