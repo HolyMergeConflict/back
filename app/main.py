@@ -8,7 +8,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from app.api.exception_handlers import register_exception_handlers
-from app.api.v1.routers import users_router, tasks_router, task_history_router, auth_router, health_router
+from app.api.v1.routers import users_router, tasks_router, task_history_router, auth_router, health_router, \
+    recommendations_router
 from app.db.init_db import init_db
 from app.middleware.auth_middleware import AuthMiddleware
 
@@ -51,7 +52,7 @@ app.include_router(tasks_router.router)
 app.include_router(task_history_router.router)
 app.include_router(auth_router.router)
 app.include_router(health_router.router)
-app.include_router(recomendation_router.router)
+app.include_router(recommendations_router.router)
 
 app.add_middleware(AuthMiddleware)
 app.add_middleware(SentryAsgiMiddleware)
