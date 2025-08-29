@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import sentry_sdk
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from starlette.requests import Request
@@ -30,6 +31,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+origins = [
+    "http://localhost:5173",   # локальная разработка фронтенда
+    "http://127.0.0.1:5173",
+]
+
 Instrumentator(
     should_group_status_codes=True,
     should_ignore_untemplated=True,
@@ -53,6 +59,16 @@ app.include_router(task_history_router.router)
 app.include_router(auth_router.router)
 app.include_router(health_router.router)
 app.include_router(recommendations_router.router)
+
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.add_middleware(AuthMiddleware)
 app.add_middleware(SentryAsgiMiddleware)
