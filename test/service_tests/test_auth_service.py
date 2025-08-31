@@ -15,7 +15,6 @@ from app.utils.password_utils import PasswordUtils
 
 @pytest.mark.asyncio
 async def test_register_user(auth_service, user_data):
-    # mock UserService.create_user
     data = user_data.model_dump()
     data['hashed_password'] = PasswordUtils.get_password_hash(data['password'])
     data.pop('password')
@@ -80,7 +79,6 @@ def test_verify_token_success(mock_redis_exists, auth_service):
 
 
 def test_verify_token_invalid_signature(auth_service):
-    # изменить токен (сломать подпись)
     token = jwt.encode({"sub": "hacker"}, "WRONG_KEY", algorithm="HS256")
 
     with pytest.raises(ServiceException, match="Invalid token"):
@@ -104,19 +102,15 @@ def test_logout_sets_redis_flag(mock_redis, auth_service):
 
 @patch("app.services.auth_service.redis_client")
 def test_logout_sets_expire(mock_redis, auth_service):
-    # создаём валидный токен
     token = auth_service.create_access_token(data={"sub": "logmeout"})
 
-    # извлекаем exp вручную
     payload = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=[os.getenv("ALGORITHM", "HS256")])
     exp = int(payload["exp"])
     now = int(datetime.now().timestamp())
     expected_ttl = exp - now
 
-    # вызываем logout
     auth_service.logout(token)
 
-    # проверяем вызов Redis
     mock_redis.expire.assert_called_once()
 
     called_key, called_value = mock_redis.expire.call_args[0][:2]

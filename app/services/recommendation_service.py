@@ -1,19 +1,17 @@
 from __future__ import annotations
-from typing import Sequence, List, Dict, Any, Optional
+from typing import Sequence, List, Dict
 from dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, literal, and_, not_, desc
-from datetime import datetime
 
 from app.models.task_table import Task
 from app.models.task_history_table import TaskHistory
 
-try:
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    from sklearn.metrics.pairwise import cosine_similarity
-    _SKLEARN = True
-except Exception:
-    _SKLEARN = False
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+_SKLEARN = True
+
 
 
 @dataclass

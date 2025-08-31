@@ -1,4 +1,3 @@
-
 import pytest
 from app.models.task_table import Task
 

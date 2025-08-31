@@ -1,4 +1,3 @@
-
 import pytest
 from datetime import datetime, timedelta
 from app.models.task_history_table import TaskHistory
